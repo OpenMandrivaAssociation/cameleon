@@ -57,7 +57,7 @@ This package contains libraries for %{name}.
 %patch0 -p 1
 %patch1 -p 1
 %patch2 -p 1
-#%patch3 -p 1
+autoreconf
 
 %build
 ./configure
