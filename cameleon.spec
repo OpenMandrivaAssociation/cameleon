@@ -24,6 +24,7 @@ BuildRequires:  ocaml
 BuildRequires:  ocaml-ioxml
 BuildRequires:  ocaml-lablgtk-devel
 BuildRequires:  camlp5
+BuildRequires:  ncurses-devel
 Requires:   %{name}-libs = %{version}-%{release}
 BuildRoot:	%{_tmppath}/%{name}-%{version}
 
