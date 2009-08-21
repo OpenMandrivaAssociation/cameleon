@@ -1,9 +1,9 @@
 %define name	cameleon
 %define version	1.3
 %define up_version	1_3
-%define release	%mkrel 1
+%define release	%mkrel 2
 
-%if %mdkversion >= 200900
+%if %mdkversion > 200900
 %define ocaml_libdir %{_libdir}/ocaml
 %else
 %define ocaml_libdir %{ocaml_sitelib}
