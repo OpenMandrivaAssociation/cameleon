@@ -1,0 +1,553 @@
+diff -Naur cameleon-1.3/cameleon/Makefile cameleon-1.3-use-camlp5/cameleon/Makefile
+--- cameleon-1.3/cameleon/Makefile	2003-10-03 13:59:14.000000000 +0200
++++ cameleon-1.3-use-camlp5/cameleon/Makefile	2009-08-20 10:15:25.000000000 +0200
+@@ -145,22 +145,22 @@
+ #####################
+ 
+ cam_menus.cmo: cam_menus.ml
+-	$(OCAMLC) -c -pp "camlp4o $(ROOT)/ioxml/pa_ioXML.cmo" $(COMPFLAGS) $<
++	$(OCAMLC) -c -pp "camlp5o pa_ioXML.cmo" $(COMPFLAGS) $<
+ 
+ cam_menus.cmi: cam_menus.mli
+-	$(OCAMLC) -c -pp "camlp4o $(ROOT)/ioxml/pa_ioXML.cmo" $(COMPFLAGS) $<
++	$(OCAMLC) -c -pp "camlp5o pa_ioXML.cmo" $(COMPFLAGS) $<
+ 
+ cam_menus.cmx: cam_menus.ml
+-	$(OCAMLOPT) -c -pp "camlp4o $(ROOT)/ioxml/pa_ioXML.cmo" $(COMPFLAGS) $<
++	$(OCAMLOPT) -c -pp "camlp5o pa_ioXML.cmo" $(COMPFLAGS) $<
+ 
+ cam_misc.cmo: cam_misc.ml
+-	$(OCAMLC) -c -pp "camlp4o" $(COMPFLAGS) $<
++	$(OCAMLC) -c -pp "camlp5o" $(COMPFLAGS) $<
+ 
+ cam_misc.cmx: cam_misc.ml
+-	$(OCAMLOPT) -c -pp "camlp4o" $(COMPFLAGS) $<
++	$(OCAMLOPT) -c -pp "camlp5o" $(COMPFLAGS) $<
+ 
+ cam_misc.cmi: cam_misc.ml
+-	$(OCAMLC) -c -pp "camlp4o " $(COMPFLAGS) $<
++	$(OCAMLC) -c -pp "camlp5o " $(COMPFLAGS) $<
+ 
+ # Documentation :
+ #################
+@@ -200,7 +200,7 @@
+ 
+ 
+ .depend depend::
+-	$(OCAMLDEP) -pp "camlp4o" *.ml *.mli > .depend
++	$(OCAMLDEP) -pp "camlp5o" *.ml *.mli > .depend
+ 
+ dummy:
+ 
+diff -Naur cameleon-1.3/configure.in cameleon-1.3-use-camlp5/configure.in
+--- cameleon-1.3/configure.in	2005-09-05 08:58:38.000000000 +0200
++++ cameleon-1.3-use-camlp5/configure.in	2009-08-20 10:16:42.000000000 +0200
+@@ -47,10 +47,10 @@
+ 	AC_MSG_ERROR(Cannot find ocaml.)
+ fi
+ 
+-# we first look for camlp4 in the path; if not present, we fail
+-AC_PATH_PROG(CAMLP4,camlp4,no)
++# we first look for camlp5 in the path; if not present, we fail
++AC_PATH_PROG(CAMLP4,camlp5,no)
+ if test "$CAMLP4" = no ; then
+-	AC_MSG_ERROR(Cannot find camlp4.)
++	AC_MSG_ERROR(Cannot find camlp5.)
+ fi
+ 
+ # we look for the directory of ocamlc in $OCAMLC
+diff -Naur cameleon-1.3/configure.in~ cameleon-1.3-use-camlp5/configure.in~
+--- cameleon-1.3/configure.in~	1970-01-01 01:00:00.000000000 +0100
++++ cameleon-1.3-use-camlp5/configure.in~	2009-08-20 10:15:02.000000000 +0200
+@@ -0,0 +1,267 @@
++##########################################################################
++#                   Cameleon                                             #
++#                                                                        #
++#      Copyright (C) 2002 Institut National de Recherche en Informatique et   #
++#      en Automatique. All rights reserved.                              #
++#                                                                        #
++#      This program is free software; you can redistribute it and/or modify  #
++#      it under the terms of the GNU General Public License as published by  #
++#      the Free Software Foundation; either version 2 of the License, or  #
++#      any later version.                                                #
++#                                                                        #
++#      This program is distributed in the hope that it will be useful,   #
++#      but WITHOUT ANY WARRANTY; without even the implied warranty of    #
++#      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the     #
++#      GNU General Public License for more details.                      #
++#                                                                        #
++#      You should have received a copy of the GNU General Public License  #
++#      along with this program; if not, write to the Free Software       #
++#      Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA          #
++#      02111-1307  USA                                                   #
++#                                                                        #
++#      Contact: Maxence.Guesdon@inria.fr                                #
++##########################################################################
++#
++# autoconf input based on sample by Jean-Christophe Filli<E2>tre
++#   from a first script by Georges Mariano 
++
++# check for one particular file of the sources 
++AC_INIT(cameleon/cam_messages.ml)
++
++# The root directory where we will compile
++ROOT=`pwd`
++
++# Check for Ocaml compilers
++
++OCAML_NEEDED=3.04
++
++# we first look for ocamlc in the path; if not present, we fail
++AC_PATH_PROG(OCAMLC,ocamlc,no)
++if test "$OCAMLC" = no ; then
++	AC_MSG_ERROR(Cannot find ocamlc.)
++fi
++
++# we first look for ocaml in the path; if not present, we fail
++AC_PATH_PROG(OCAML,ocaml,no)
++if test "$OCAML" = no ; then
++	AC_MSG_ERROR(Cannot find ocaml.)
++fi
++
++# we first look for camlp4 in the path; if not present, we fail
++AC_PATH_PROG(CAMLP4,camlp4,no)
++if test "$CAMLP4" = no ; then
++	AC_MSG_ERROR(Cannot find camlp4.)
++fi
++
++# we look for the directory of ocamlc in $OCAMLC
++OCAMLBIN=`dirname $OCAMLC`
++
++# we extract Ocaml version number and library path
++OCAMLVERSION=`$OCAMLC -v | sed -n -e 's|.*version *\([[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\).*$|\1|p' `
++#echo "ocaml version is $OCAMLVERSION"
++
++MLCHECK="
++let v = \"$OCAMLVERSION\"
++let version = try let p = String.index v '+' in String.sub v 0 p with Not_found -> v
++let f s =
++  try
++    let p = String.index_from s 0 '.' in
++    let major = int_of_string (String.sub s 0 p) in
++    try
++      let p2 = String.index_from s (p+1) '.' in
++      let minor = int_of_string (String.sub s (p+1) (p2 - p - 1)) in
++      try
++        let len = String.length s in
++        let add = int_of_string (String.sub s (p2+1) (len - p2 - 1)) in
++        (major, minor, add)
++      with
++        _ ->
++         (major, minor, 0)
++    with
++      _ ->
++        (major, 0, 0)
++  with _ -> (0,0,0)
++
++let (major,minor,add) = f version
++let (major_r, minor_r, add_r) = f \"$OCAML_NEEDED\"
++let _ = if major > major_r or (major = major_r && (minor > minor_r or (minor = minor_r && add >= add_r))) then exit 0 else exit 1;;
++"
++
++# check that this version is at least the one we need
++if (echo $MLCHECK | $OCAML > /dev/null) ; then
++        AC_MSG_RESULT(OCaml version $OCAMLVERSION is ok)
++else
++        AC_MSG_ERROR(OCaml version $OCAMLVERSION found ; version $OCAML_NEEDED or greater is needed)
++fi
++
++OCAMLLIB=`$OCAMLC -v | tail -1 | cut -f 4 -d " "`
++echo "ocaml library path is $OCAMLLIB"
++
++# set the default prefix to the ocaml directory
++AC_PREFIX_PROGRAM(ocamlc)
++exec_prefix=$prefix
++
++# then we look for ocamlopt; if not present, we issue a warning
++# if the version is not the same, we also discard it
++# we set OCAMLBEST to "opt" or "byte", whether ocamlopt is available or not
++AC_PATH_PROG(OCAMLOPT,ocamlopt,no)
++OCAMLBEST=byte
++if test "$OCAMLOPT" = no ; then
++	AC_MSG_WARN(Cannot find ocamlopt; bytecode compilation only.)
++else
++	AC_MSG_CHECKING(ocamlopt version)
++	TMPVERSION=`$OCAMLOPT -v | sed -n -e 's|.*version* *\([[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\).*|\1|p' `
++	if test "$TMPVERSION" != "$OCAMLVERSION" ; then
++	    AC_MSG_RESULT(differs from ocamlc; ocamlopt discarded.)
++	    OCAMLOPT=no
++	else
++	    AC_MSG_RESULT(ok)
++	    OCAMLBEST=opt
++	fi
++fi
++
++# checking for ocamlc.opt
++AC_PATH_PROG(OCAMLCDOTOPT,ocamlc.opt,no)
++if test "$OCAMLCDOTOPT" != no ; then
++	AC_MSG_CHECKING(ocamlc.opt version)
++	TMPVERSION=`$OCAMLCDOTOPT -v | sed -n -e 's|.*version* *\([[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\).*|\1|p' `
++	if test "$TMPVERSION" != "$OCAMLVERSION" ; then
++	    AC_MSG_RESULT(differs from ocamlc; ocamlc.opt discarded.)
++	else
++	    AC_MSG_RESULT(ok)
++	    OCAMLC=$OCAMLCDOTOPT
++	fi
++fi
++
++# checking for ocamlopt.opt
++if test "$OCAMLOPT" != no ; then
++    AC_PATH_PROG(OCAMLOPTDOTOPT,ocamlopt.opt,no)
++    if test "$OCAMLOPTDOTOPT" != no ; then
++	AC_MSG_CHECKING(ocamlc.opt version)
++	TMPVER=`$OCAMLOPTDOTOPT -v | sed -n -e 's|.*version* *\([[0-9]][[0-9]]*\.[[0-9]][[0-9]]*\).*|\1|p' `
++	if test "$TMPVER" != "$OCAMLVERSION" ; then
++	    AC_MSG_RESULT(differs from ocamlc; ocamlopt.opt discarded.)
++	else
++	    AC_MSG_RESULT(ok)
++	    OCAMLOPT=$OCAMLOPTDOTOPT
++	fi
++    fi
++fi
++
++# ocamldep, ocamllex and ocamlyacc should also be present in the path
++AC_PATH_PROG(OCAMLDEP,ocamldep,no)
++if test "$OCAMLDEP" = no ; then
++	AC_MSG_ERROR(Cannot find ocamldep.)
++fi
++
++AC_PATH_PROG(OCAMLLEX,ocamllex,no)
++if test "$OCAMLLEX" = no ; then
++	AC_MSG_ERROR(Cannot find ocamllex.)
++fi
++
++AC_PATH_PROG(OCAMLYACC,ocamlyacc,no)
++if test "$OCAMLYACC" = no ; then
++	AC_MSG_ERROR(Cannot find ocamlyacc.)
++fi
++
++AC_PATH_PROG(OCAMLDOC,ocamldoc,no)
++
++if test "$bindir" = "\${exec_prefix}/bin" ; then
++	bindir=$prefix/bin
++fi
++echo Binaries will be installed in $bindir
++
++if test "$libdir" = "\${exec_prefix}/lib" ; then
++	libdir=$OCAMLLIB/cameleon
++fi
++echo Libraries will be installed in $libdir
++
++if test "$mandir" = "\${prefix}/man" ; then
++	mandir=$prefix/man
++fi
++echo Man pages will be installed in $mandir
++
++if test "$mandir" = "\${prefix}/man" ; then
++	mandir=$prefix/man
++fi
++echo Man pages will be installed in $mandir
++
++
++if test "$datadir" = "\${prefix}/share" ; then
++	datadir=$prefix/share
++fi
++
++PIXMAPSDIR=$datadir/pixmaps
++echo Pixmaps will be installed in $PIXMAPSDIR
++
++TEMPLATESDIR=$datadir/templates
++echo Templates will be installed in $TEMPLATESDIR
++
++PLUGINSDIR=$datadir/plugins
++echo Plug-ins will be installed in $PLUGINSDIR
++
++
++OCAMLSRCDIR=
++AC_ARG_WITH(ocamlsrcdir,
++[  --with-ocamlsrcdir=dir   get and compile topcameleon and epeire using the directory with OCaml compiled sources (need for epeire or topcameleon)
++],
++[ OCAMLSRCDIR="$withval"])
++
++TAR_CAMTOP=camtop_1_3.tar.gz
++
++if test "$OCAMLSRCDIR" != "" ; then
++	echo Using $OCAMLSRCDIR for OCaml compiled sources location;
++	if test -d camtop; then
++	  echo Topcameleon already there
++	else
++	if test -f ${TAR_CAMTOP} ; then
++	  tar xvfz ${TAR_CAMTOP} > /dev/null;
++        else
++	  echo Getting Topcameleon...;
++ 	  wget http://pauillac.inria.fr/~guesdon/Tools/Tars/${TAR_CAMTOP} > /dev/null 2>&1 ;
++	  tar xvfz ${TAR_CAMTOP} > /dev/null;
++	  echo Ok
++	fi
++        fi
++fi
++
++#echo prefix=$prefix
++#echo exec_prefix=$exec_prefix
++#echo libdir=$libdir
++#echo bindir=$bindir
++#echo mandir=$mandir
++
++# substitutions to perform
++AC_SUBST(OCAMLC)
++AC_SUBST(OCAMLOPT)
++AC_SUBST(OCAMLDEP)
++AC_SUBST(OCAMLLEX)
++AC_SUBST(OCAMLYACC)
++AC_SUBST(OCAMLBEST)
++AC_SUBST(OCAMLVERSION)
++AC_SUBST(OCAMLLIB)
++AC_SUBST(OCAMLBIN)
++AC_SUBST(OCAMLDOC)
++AC_SUBST(EXEC_PREFIX)
++AC_SUBST(INSTALLBIN)
++AC_SUBST(TEMPLATESDIR)
++AC_SUBST(PLUGINSDIR)
++AC_SUBST(PIXMAPSDIR)
++AC_SUBST(OCAMLSRCDIR)
++AC_SUBST(ROOT)
++
++if test "$OCAMLSRCDIR" != "" ; then
++  ACFILES="master.Makefile cameleon/cam_installation.ml camtop/cam-mktop omom/rc/template_omom_part2"
++else
++  ACFILES="master.Makefile cameleon/cam_installation.ml omom/rc/template_omom_part2"
++fi
++
++# Finally create the Makefile and samples
++AC_OUTPUT($ACFILES)
++chmod a-w master.Makefile
++chmod a-w cameleon/cam_installation.ml
++chmod a-w omom/rc/template_omom_part2
++
++if test "$OCAMLSRCDIR" != "" ; then
++    chmod a-w camtop/cam-mktop
++fi
+diff -Naur cameleon-1.3/dbforge/Makefile cameleon-1.3-use-camlp5/dbforge/Makefile
+--- cameleon-1.3/dbforge/Makefile	2003-12-31 18:16:43.000000000 +0100
++++ cameleon-1.3-use-camlp5/dbforge/Makefile	2009-08-20 10:15:25.000000000 +0200
+@@ -133,10 +133,10 @@
+ ##################
+ 
+ dbf_types.cmo dbf_types.cmi: dbf_types.ml
+-	$(OCAMLC) -c -pp "camlp4o ../ioxml/pa_ioXML.cmo" $(COMPFLAGS) $<
++	$(OCAMLC) -c -pp "camlp5o pa_ioXML.cmo" $(COMPFLAGS) $<
+ 
+ dbf_types.cmx dbf_types.cmi: dbf_types.ml
+-	$(OCAMLOPT) -c -pp "camlp4o ../ioxml/pa_ioXML.cmo" $(COMPFLAGS) $<
++	$(OCAMLOPT) -c -pp "camlp5o pa_ioXML.cmo" $(COMPFLAGS) $<
+ 
+ # installation :
+ ################
+diff -Naur cameleon-1.3/dbforge/translate/Makefile cameleon-1.3-use-camlp5/dbforge/translate/Makefile
+--- cameleon-1.3/dbforge/translate/Makefile	2003-05-22 11:33:46.000000000 +0200
++++ cameleon-1.3-use-camlp5/dbforge/translate/Makefile	2009-08-20 10:15:25.000000000 +0200
+@@ -37,7 +37,7 @@
+ 
+ EXE=dbftrans
+ 
+-LINKFLAGS=-I ../ocamlsql -I $(ROOT)/ioxml -I +camlp4
++LINKFLAGS=-I ../ocamlsql -I $(ROOT)/ioxml -I +camlp5
+ 
+ byte: $(EXE) 
+ all:byte opt 
+diff -Naur cameleon-1.3/Makefile cameleon-1.3-use-camlp5/Makefile
+--- cameleon-1.3/Makefile	2003-12-28 16:52:55.000000000 +0100
++++ cameleon-1.3-use-camlp5/Makefile	2009-08-20 10:15:25.000000000 +0200
+@@ -48,8 +48,6 @@
+ 	cd $@ && $(MAKE) $(TARGET)
+ mlchat: dummy
+ 	cd $@ && $(MAKE) $(TARGET)
+-ioxml: dummy
+-	cd $@ && $(MAKE) $(TARGET) DESTDIR=$(DESTDIR)
+ report: dummy
+ 	cd $@ && $(MAKE) $(TARGET)
+ toolhtml: dummy
+@@ -80,11 +78,11 @@
+ depend:dummy
+ 	$(MAKE) TARGET=$@ iter
+ 
+-upto_toolhtml:options okey configwin zoggy ioxml report toolhtml
++upto_toolhtml:options okey configwin zoggy report toolhtml
+ 	@if test "$(OCAMLOPT)" != no; then $(MAKE) upto_toolhtml.opt; fi
+ 
+ upto_toolhtml.opt: dummy
+-	for i in options okey configwin zoggy ioxml report toolhtml ;\
++	for i in options okey configwin zoggy report toolhtml ;\
+ 	do (cd $$i && $(MAKE) opt); done
+ 
+ # Documentation :
+@@ -94,7 +92,7 @@
+ doc: doc_cameleon doc_stdlib
+ 
+ doc_dbf_types.odoc:dummy
+-	$(OCAMLDOC) -pp "camlp4o $(ROOT)/ioxml/pa_ioXML.cmo" -I ioxml $(COMPFLAGS) \
++	$(OCAMLDOC) -pp "camlp5o pa_ioXML.cmo" -I +camlp5 $(COMPFLAGS) \
+ 	dbforge/dbf_types.ml -dump $@
+ 
+ doc_cameleon: doc_dbf_types.odoc dummy
+@@ -172,7 +170,6 @@
+ 	cd okey && $(MAKE) install
+ 	cd configwin && $(MAKE) install
+ 	cd zoggy && $(MAKE) install
+-	cd ioxml && $(MAKE) install
+ 	cd report && $(MAKE) install
+ 	cd toolhtml && $(MAKE) install
+ 
+@@ -201,7 +198,6 @@
+ 	cd okey && $(MAKE) $(TARGET)
+ 	cd configwin && $(MAKE) $(TARGET)
+ 	cd gpattern && $(MAKE) $(TARGET)
+-	cd ioxml && $(MAKE) $(TARGET)
+ 	cd ocamlcvs && $(MAKE) $(TARGET)
+ 	cd zoggy && $(MAKE) $(TARGET)
+ 	cd mlchat && $(MAKE) $(TARGET)
+diff -Naur cameleon-1.3/master.Makefile.in cameleon-1.3-use-camlp5/master.Makefile.in
+--- cameleon-1.3/master.Makefile.in	2003-12-28 16:52:55.000000000 +0100
++++ cameleon-1.3-use-camlp5/master.Makefile.in	2009-08-20 10:15:25.000000000 +0200
+@@ -116,7 +116,6 @@
+ 
+ INCLUDES=$(INCLUDEGTK) \
+ 	-I $(OCAMLLIB) \
+-	-I $(ROOT)/ioxml \
+ 	-I $(ROOT)/sqml \
+ 	-I $(ROOT)/options \
+ 	-I $(ROOT)/okey \
+@@ -127,7 +126,7 @@
+ 	-I $(ROOT)/report \
+ 	-I $(ROOT)/toolhtml \
+ 	-I +ocamldoc \
+-	-I +camlp4 \
++	-I +camlp5 \
+ 	-I +threads \
+ 	-I $(ROOT)/zoggy \
+ 	-I $(ROOT)/mlchat \
+@@ -161,12 +160,12 @@
+ 	$(OCAMLYACC) -v $<
+ 
+ %.cmo %.cmi: %.zog
+-	$(OCAMLC) -c -pp "camlp4o $(ROOT)/zoggy/pa_zog.cma -impl" $(COMPFLAGS) -impl $<
++	$(OCAMLC) -c -pp "camlp5o $(ROOT)/zoggy/pa_zog.cma -impl" $(COMPFLAGS) -impl $<
+ 
+ %.cmx : %.zog
+-	$(OCAMLOPT) -c -pp "camlp4o $(ROOT)/zoggy/pa_zog.cma -impl" $(COMPFLAGS) -impl $<
++	$(OCAMLOPT) -c -pp "camlp5o $(ROOT)/zoggy/pa_zog.cma -impl" $(COMPFLAGS) -impl $<
+ %.ml: %.zog
+-	camlp4o $(ROOT)/zoggy/pa_zog.cma pr_o.cmo -impl $< > $@
++	camlp5o $(ROOT)/zoggy/pa_zog.cma pr_o.cmo -impl $< > $@
+ 
+ %.ml: %.rep
+ 	$(ROOT)/report/report -gen $<
+diff -Naur cameleon-1.3/omom/Makefile cameleon-1.3-use-camlp5/omom/Makefile
+--- cameleon-1.3/omom/Makefile	2004-07-14 09:55:02.000000000 +0200
++++ cameleon-1.3-use-camlp5/omom/Makefile	2009-08-20 10:15:25.000000000 +0200
+@@ -26,7 +26,7 @@
+ 
+ include ../master.Makefile
+ 
+-OCAMLPP=-pp camlp4o
++OCAMLPP=-pp camlp5o
+ 
+ # For installation 
+ ##############
+diff -Naur cameleon-1.3/report/Makefile cameleon-1.3-use-camlp5/report/Makefile
+--- cameleon-1.3/report/Makefile	2003-05-22 11:33:47.000000000 +0200
++++ cameleon-1.3-use-camlp5/report/Makefile	2009-08-20 10:15:25.000000000 +0200
+@@ -128,19 +128,19 @@
+ #################
+ 
+ rep_desc.cmo rep_desc.cmi: rep_desc.ml
+-	$(OCAMLC) -c -pp "camlp4o $(ROOT)/ioxml/pa_ioXML.cmo" $(COMPFLAGS) $<
++	$(OCAMLC) -c -pp "camlp5o pa_ioXML.cmo" $(COMPFLAGS) $<
+ 
+ rep_desc.cmx : rep_desc.ml
+-	$(OCAMLOPT) -c -pp "camlp4o $(ROOT)/ioxml/pa_ioXML.cmo" $(COMPFLAGS) $<
++	$(OCAMLOPT) -c -pp "camlp5o pa_ioXML.cmo" $(COMPFLAGS) $<
+ 
+ # Translator :
+ ##############
+ TRANSDIR=trans0.3-0.4
+ $(TRANSDIR)/trans.cmo $(TRANSDIR)/trans.cmi: $(TRANSDIR)/trans.ml 
+-	$(OCAMLC) -c -pp "camlp4o $(ROOT)/ioxml/pa_ioXML.cmo" $(COMPFLAGS) $<
++	$(OCAMLC) -c -pp "camlp5o pa_ioXML.cmo" $(COMPFLAGS) $<
+ 
+ $(TRANSDIR)/trans.cmx: $(TRANSDIR)/trans.ml 
+-	$(OCAMLOPT) -c -pp "camlp4o $(ROOT)/ioxml/pa_ioXML.cmo" $(COMPFLAGS) $<
++	$(OCAMLOPT) -c -pp "camlp5o pa_ioXML.cmo" $(COMPFLAGS) $<
+ 
+ $(EXE_TRANS): $(TRANSDIR)/trans.cmo
+ 	$(OCAMLC) -custom -o $@ $(LINKFLAGS) $(LIBS) $<
+diff -Naur cameleon-1.3/zoggy/Makefile cameleon-1.3-use-camlp5/zoggy/Makefile
+--- cameleon-1.3/zoggy/Makefile	2003-07-30 00:15:24.000000000 +0200
++++ cameleon-1.3-use-camlp5/zoggy/Makefile	2009-08-20 10:15:25.000000000 +0200
+@@ -95,7 +95,7 @@
+ 	$(OCAMLC) $(PAZOGFILES) -a -o pa_zog.cma
+ 
+ pa_zog.cmo: pa_zog.ml
+-	$(OCAMLC) -pp camlp4o -I +camlp4 -c pa_zog.ml
++	$(OCAMLC) -pp camlp5o -I +camlp5 -c pa_zog.ml
+ 
+ debug: 
+ 	$(MAKE) OCAMLPP=""
+@@ -117,7 +117,7 @@
+ #################
+ 
+ %.ml:%.zog
+-	camlp4o ./pa_zog.cma pr_o.cmo -impl $< > $@
++	camlp5o ./pa_zog.cma pr_o.cmo -impl $< > $@
+ 
+ # installation :
+ ################
+@@ -128,7 +128,7 @@
+ 	$(CP) $(LIB_CMI) $(LIB) $(LIBDIR)
+ 	if test -d $(MANDIR)/man1; then : ; else $(MKDIR) $(MANDIR)/man1; fi
+ 	$(CP) man/*.1 $(MANDIR)/man1
+-	$(CP) pa_zog.cma $(DESTDIR)`camlp4 -where`
++	$(CP) pa_zog.cma $(DESTDIR)`camlp5 -where`
+ 	if test -f $(EXE_OPT) ; then $(MAKE) installopt ; fi
+ 
+ installopt: dummy
+diff -Naur cameleon-1.3/zoggy2/Makefile cameleon-1.3-use-camlp5/zoggy2/Makefile
+--- cameleon-1.3/zoggy2/Makefile	2003-07-30 00:15:24.000000000 +0200
++++ cameleon-1.3-use-camlp5/zoggy2/Makefile	2009-08-20 10:15:25.000000000 +0200
+@@ -107,7 +107,7 @@
+ 	$(OCAMLC) $(PAZOGFILES) -a -o pa_zog.cma
+ 
+ pa_zog.cmo: pa_zog.ml
+-	$(OCAMLC) -pp camlp4o -I +camlp4 -c pa_zog.ml
++	$(OCAMLC) -pp camlp5o -I +camlp5 -c pa_zog.ml
+ 
+ debug: 
+ 	$(MAKE) OCAMLPP=""
+@@ -129,7 +129,7 @@
+ #################
+ 
+ %.ml:%.zog
+-	camlp4o ./pa_zog.cma pr_o.cmo -impl $< > $@
++	camlp5o ./pa_zog.cma pr_o.cmo -impl $< > $@
+ 
+ # installation :
+ ################
+@@ -140,7 +140,7 @@
+ 	$(CP) $(LIB_CMI) $(LIB) $(LIBDIR)
+ 	if test -d $(MANDIR)/man1; then : ; else $(MKDIR) $(MANDIR)/man1; fi
+ 	$(CP) man/*.1 $(MANDIR)/man1
+-	$(CP) pa_zog.cma $(DESTDIR)`camlp4 -where`
++	$(CP) pa_zog.cma $(DESTDIR)`camlp5 -where`
+ 	if test -f $(EXE_OPT) ; then $(MAKE) installopt ; fi
+ 
+ installopt: dummy
+diff -Naur cameleon-1.3/zoggy2/META cameleon-1.3-use-camlp5/zoggy2/META
+--- cameleon-1.3/zoggy2/META	2003-07-29 00:29:37.000000000 +0200
++++ cameleon-1.3-use-camlp5/zoggy2/META	2009-08-20 10:15:25.000000000 +0200
+@@ -1,5 +1,5 @@
+ # Zoggy's META file for findlib 
+-requires = "unix str lablgtk2 configwin camlp4"
++requires = "unix str lablgtk2 configwin camlp5"
+ version = "1.2"
+ archive(byte) = "zoggy.cma"
+ archive(native) = "zoggy.cmxa"

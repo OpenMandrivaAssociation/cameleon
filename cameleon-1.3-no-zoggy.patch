@@ -1,0 +1,52 @@
+diff -Naur --exclude '*~' cameleon-1.3-use-camlp5/Makefile cameleon-1.3-no-zoggy/Makefile
+--- cameleon-1.3-use-camlp5/Makefile	2008-09-15 16:09:07.000000000 +0200
++++ cameleon-1.3-no-zoggy/Makefile	2008-09-17 16:23:28.000000000 +0200
+@@ -44,8 +44,6 @@
+ 	cd $@ && $(MAKE) $(TARGET)
+ ocamlcvs: dummy
+ 	cd $@ && $(MAKE) $(TARGET)
+-zoggy: dummy
+-	cd $@ && $(MAKE) $(TARGET)
+ mlchat: dummy
+ 	cd $@ && $(MAKE) $(TARGET)
+ report: dummy
+@@ -78,11 +76,11 @@
+ depend:dummy
+ 	$(MAKE) TARGET=$@ iter
+ 
+-upto_toolhtml:options okey configwin zoggy report toolhtml
++upto_toolhtml:options okey configwin report toolhtml
+ 	@if test "$(OCAMLOPT)" != no; then $(MAKE) upto_toolhtml.opt; fi
+ 
+ upto_toolhtml.opt: dummy
+-	for i in options okey configwin zoggy report toolhtml ;\
++	for i in options okey configwin report toolhtml ;\
+ 	do (cd $$i && $(MAKE) opt); done
+ 
+ # Documentation :
+@@ -139,8 +137,7 @@
+ 	mlchat/chat_messages.ml \
+ 	ocamlcvs/ocvs_messages.ml \
+ 	omom/omom_messages.ml \
+-	report/rep_messages.ml \
+-	zoggy/zog_messages.ml 
++	report/rep_messages.ml
+ 
+ # installation :
+ ################
+@@ -169,7 +166,6 @@
+ 	cd options && $(MAKE) install
+ 	cd okey && $(MAKE) install
+ 	cd configwin && $(MAKE) install
+-	cd zoggy && $(MAKE) install
+ 	cd report && $(MAKE) install
+ 	cd toolhtml && $(MAKE) install
+ 
+@@ -199,7 +195,6 @@
+ 	cd configwin && $(MAKE) $(TARGET)
+ 	cd gpattern && $(MAKE) $(TARGET)
+ 	cd ocamlcvs && $(MAKE) $(TARGET)
+-	cd zoggy && $(MAKE) $(TARGET)
+ 	cd mlchat && $(MAKE) $(TARGET)
+ 	cd report && $(MAKE) $(TARGET)
+ 	cd toolhtml && $(MAKE) $(TARGET)

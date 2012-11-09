@@ -1,0 +1,22 @@
+diff -Naur --exclude '*~' cameleon-1.3-no-zoggy/dbforge/Makefile cameleon-1.3-fix-report-output/dbforge/Makefile
+--- cameleon-1.3-no-zoggy/dbforge/Makefile	2008-09-17 16:22:14.000000000 +0200
++++ cameleon-1.3-fix-report-output/dbforge/Makefile	2008-09-17 16:31:18.000000000 +0200
+@@ -200,6 +200,3 @@
+ dbf_gui_base.cmo: dbf_messages.cmo
+ dbf_gui_base.cmx: dbf_messages.cmx
+ dbf_gui.cmx: dbf_gui_base.cmx
+-
+-dbf_html_rep.ml:dbf_html_rep.rep
+-	../report/report -gen $<
+diff -Naur --exclude '*~' cameleon-1.3-no-zoggy/master.Makefile.in cameleon-1.3-fix-report-output/master.Makefile.in
+--- cameleon-1.3-no-zoggy/master.Makefile.in	2008-09-17 16:22:14.000000000 +0200
++++ cameleon-1.3-fix-report-output/master.Makefile.in	2008-09-17 16:30:18.000000000 +0200
+@@ -169,3 +169,8 @@
+ 
+ %.ml: %.rep
+ 	$(ROOT)/report/report -gen $<
++	perl -pi \
++		-e 's/\\n/\n/g;' \
++		-e 's/\\"/"/g;' \
++		-e 's/\\\\/\\/g;' \
++		$@
