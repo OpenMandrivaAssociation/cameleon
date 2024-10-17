@@ -15,7 +15,7 @@ Release:	%{release}
 Summary:    OCaml IDE
 Group:      Development/Other
 License:    MIT
-URL:        http://pauillac.inria.fr/~guesdon/Tools/cameleon/cameleon.html
+URL:        https://pauillac.inria.fr/~guesdon/Tools/cameleon/cameleon.html
 Source0:    http://pauillac.inria.fr/~guesdon/Tools/Tars/cameleon_%{up_version}.tar.gz
 Patch0:     cameleon-1.3-use-camlp5.patch
 Patch1:     cameleon-1.3-no-zoggy.patch
